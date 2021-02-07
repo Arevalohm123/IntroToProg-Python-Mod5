@@ -1,2 +1,2 @@
-Walk,2
-Run,1
+Jog,1
+Crawl,3

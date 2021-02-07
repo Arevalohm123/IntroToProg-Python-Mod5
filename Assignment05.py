@@ -9,6 +9,7 @@
 # AArevalo, 1/23/2021,  Added code to continue assignment
 # AArevalo, 1/26/2021,  Fixed table viewing issues and cleaned questions
 # AArevalo, 1/31/2021,  Adding comments and descriptions
+# AArevalo, 2/6/2021,   Big rewrite using dictionaries instead of tables
 # ------------------------------------------------------------------------ #
 
 # -- Data -- #
@@ -16,17 +17,19 @@
 todo = "C:\\_PythonClass\\Assignment05\\ToDoList.txt"   # The To-Do List
 New_Task = None                                         # New task
 New_Priority = None                                     # Priority of new task
-New_Row = (New_Task, New_Priority)                      # New task grouped with its priority
+dicRow = {}                                             # Dictionary entry
 strTaskRemove = None                                    # Task that will be removed
+strChoice = None                                        # Choice in the menu
 Table = []                                              # Table of tasks and priorities put together
 
 # -- Processing -- #
 # This loop takes the to-do list file and adds it to a table
 objFile = open(todo)
 for row in objFile:
-    T, P = row.split(",")
-    newEntry = (T, P.strip())
-    Table.append(newEntry)
+    lstData = row.split(",")
+    dicRow = {"Task": lstData[0].strip(), "Priority": lstData[1].strip()}
+    Table.append(dicRow)
+objFile.close()
 
 
 # -- Input/Output -- #
@@ -46,15 +49,10 @@ while True:
     print()  # adding a new line for looks
     # Step 3 - Show the current items in the table
     if strChoice.strip() == '1':
-        table_range = len(Table) - 1
-        k = 0
-        print("Task, Priority")
+        print("Task - Priority")
         print("---------------")
-        while k <= table_range:
-            y = str(Table[k][0])
-            z = str(Table[k][1])
-            print(y, ",", z)
-            k = k + 1
+        for row in Table:
+            print(row["Task"] + " - " + row["Priority"])
         continue
     # Step 4 - Add a new item to the list/Table
     #   Use New_Task and New_Priority to gather inputs from the user. Take this data and
@@ -62,7 +60,7 @@ while True:
     elif strChoice.strip() == '2':
         New_Task = input("What's the task you'd like to add?")
         New_Priority = input("What's the priority?(1-5)")
-        New_Row = (New_Task, New_Priority)
+        New_Row = {"Task": New_Task, "Priority": New_Priority}
         Table.append(New_Row)
         print("\n" + New_Task + " has been added with a priority of " + New_Priority + "!")
         continue
@@ -70,40 +68,32 @@ while True:
     #   Use StrTaskRemove to get the users input on which task to remove. Find this task in
     #   the first column of the latest version of the Table, and if it exist, delete it.
     elif strChoice.strip() == '3':
-        print("Tasks available for deletion:")
-        print("------------------------------")
-        table_range = len(Table) - 1
-        k = 0
-        print("Task, Priority")
-        print("---------------")
-        while k <= table_range:
-            y = str(Table[k][0])
-            z = str(Table[k][1])
-            print(y, ",", z)
-            k = k + 1
         strTaskRemove = str(input("\nWhich task would you like to remove?"))
-        j = 0
-        while j <= table_range:
-            if strTaskRemove in Table[j]:
-                del Table[j]
+        table_range = len(Table) - 1
+        i = 0
+        while i <= table_range:
+            if strTaskRemove in str(list(dict(Table[i]).values())[0]):
+                del Table[i]
                 print("\n" + strTaskRemove + " has been successfully deleted!")
                 break
             else:
-                j = j + 1
+                print("Task does not exist in the to-do list!")
+                i = i + 1
         continue
     # Step 6 - Save tasks to the ToDoList.txt file
     elif strChoice.strip() == '4':
-        g = 0
-        table_range = len(Table) - 1
-        file = open(todo, "w+")
-        while g <= table_range:
-            save_task = str(Table[g][0])        # Task that will be saved
-            save_priority = str(Table[g][1])    # Priority of task to be saved
-            file.write(save_task + "," + save_priority + "\n")
-            g = g + 1
-        print("\nYou're file has been saved!")
+        save_yesno = input("Are you sure you want to save?(y/n)")
+        if save_yesno == "y":
+            objFile = open(todo, "w")
+            for dicRow in Table:
+                objFile.write(dicRow["Task"]+"," + dicRow["Priority"] + "\n")
+            objFile.close()
+            print("\nYou're file has been saved!")
+        else:
+            print("\nYou're file has not been saved!")
+            continue
     # Step 7 - Exit program
     #   Print a message showing the script is closing and end the program.
     elif strChoice.strip() == '5':
-        print("The program is now closing")
+        print("The program is now closing. Goodbye!")
         break  # and Exit the program
